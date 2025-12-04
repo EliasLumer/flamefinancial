@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormattedInput } from '@/components/ui/formatted-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { AccountType, TaxTreatment } from '@/types/flame';
+import { User } from 'lucide-react';
 
 export const RetirementPersonalSection = () => {
     const { state, updateSection, updateState } = useFlameStore();
@@ -43,7 +44,7 @@ export const RetirementPersonalSection = () => {
 
     return (
         <div className="space-y-6">
-            <SectionHeader title="Personal Retirement" description="IRAs and other individual accounts." />
+            <SectionHeader title="Personal Retirement" description="IRAs and other individual accounts." icon={User} accentColor="purple" />
             
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>

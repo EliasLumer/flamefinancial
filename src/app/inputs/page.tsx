@@ -15,6 +15,7 @@ import { AssetsLiabilitiesSection } from '@/components/inputs/assets-liabilities
 import { GrowthSection } from '@/components/inputs/growth-section';
 import { BudgetTracker } from '@/components/inputs/budget-tracker';
 import { useToast } from '@/components/ui/toast';
+import { SectionWrapper } from '@/components/ui/section-header';
 
 export default function InputsPage() {
     const { state, replaceState, resetState } = useFlameStore();
@@ -114,7 +115,8 @@ export default function InputsPage() {
 
     return (
         <>
-            <div className="space-y-12 pb-32">
+            <div className="space-y-8 pb-32">
+                {/* Page Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800 pb-6">
                     <div>
                         <h1 className="text-3xl font-bold text-white tracking-tight">Control Panel</h1>
@@ -140,14 +142,45 @@ export default function InputsPage() {
                     </div>
                 </div>
 
-                <IncomeSection />
-                <RetirementWorkSection />
-                <RetirementPersonalSection />
-                <Hsa529Section />
-                <SavingsSection />
-                <ExpensesSection />
-                <AssetsLiabilitiesSection />
-                <GrowthSection />
+                {/* Income Section */}
+                <SectionWrapper accentColor="green">
+                    <IncomeSection />
+                </SectionWrapper>
+
+                {/* Work Retirement Section */}
+                <SectionWrapper accentColor="blue">
+                    <RetirementWorkSection />
+                </SectionWrapper>
+
+                {/* Personal Retirement Section */}
+                <SectionWrapper accentColor="purple">
+                    <RetirementPersonalSection />
+                </SectionWrapper>
+
+                {/* HSA & 529 Section */}
+                <SectionWrapper accentColor="cyan">
+                    <Hsa529Section />
+                </SectionWrapper>
+
+                {/* Savings Section */}
+                <SectionWrapper accentColor="emerald">
+                    <SavingsSection />
+                </SectionWrapper>
+
+                {/* Expenses Section */}
+                <SectionWrapper accentColor="rose">
+                    <ExpensesSection />
+                </SectionWrapper>
+
+                {/* Assets & Liabilities Section */}
+                <SectionWrapper accentColor="amber">
+                    <AssetsLiabilitiesSection />
+                </SectionWrapper>
+
+                {/* Growth Assumptions Section */}
+                <SectionWrapper accentColor="orange">
+                    <GrowthSection />
+                </SectionWrapper>
             </div>
             
             <BudgetTracker position="floating-bottom" />
@@ -213,4 +246,3 @@ export default function InputsPage() {
         </>
     );
 }
-

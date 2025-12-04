@@ -7,7 +7,7 @@ import { FormattedInput } from '@/components/ui/formatted-input';
 import { NumberInput } from '@/components/ui/number-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Info, Calculator, Pencil, X } from 'lucide-react';
+import { Plus, Trash2, Info, Calculator, Pencil, X, TrendingUp } from 'lucide-react';
 
 type SpendingMode = 'auto' | 'custom';
 
@@ -122,7 +122,7 @@ export const GrowthSection = () => {
 
     return (
         <div className="space-y-6">
-            <SectionHeader title="Growth & FIRE Goals" description="Assumptions for the future." />
+            <SectionHeader title="Growth & FIRE Goals" description="Assumptions for the future." icon={TrendingUp} accentColor="orange" />
 
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>

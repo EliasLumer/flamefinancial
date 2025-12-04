@@ -292,8 +292,8 @@ export default function FireDashboardPage() {
 
     return (
         <div className="space-y-8 pb-20">
-            {/* Header */}
-            <div className="flex justify-between items-center">
+            {/* Header - Consistent with other pages */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800 pb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">FIRE Dashboard</h1>
                     <p className="text-zinc-400">Track your progress towards financial independence.</p>
@@ -306,8 +306,9 @@ export default function FireDashboardPage() {
 
             {/* Scenario Manager - Shows when comparison mode is on */}
             {showComparison && (
-                <Card className="border-zinc-800 bg-zinc-900/50 border-orange-500/20">
-                    <CardHeader className="pb-3">
+                <Card className="relative overflow-hidden border-zinc-800 bg-zinc-900/50">
+                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-500 to-amber-400" />
+                    <CardHeader className="pb-3 pt-5">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-sm font-medium text-zinc-300 flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
@@ -492,15 +493,18 @@ export default function FireDashboardPage() {
                 <div className="space-y-4">
                     {/* Chart Header with Age Range */}
                     <Card className="border-zinc-800 bg-zinc-900/50">
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2">
+                        <CardHeader className="pb-3 border-b border-zinc-800/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-orange-500/10">
                                     <LineChart className="h-5 w-5 text-orange-500" />
-                                    Wealth Projection
-                                </CardTitle>
+                                </div>
+                                <div>
+                                    <CardTitle className="text-lg">Wealth Projection</CardTitle>
+                                    <p className="text-xs text-zinc-500 mt-0.5">Adjust the age range to explore your timeline</p>
+                                </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 pt-4">
                             <AgeRangeSlider
                                 minAge={currentState.fire.currentAge}
                                 maxAge={90}

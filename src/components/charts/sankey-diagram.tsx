@@ -18,6 +18,7 @@ const NODE_COLORS: Record<string, string> = {
     'Savings': '#8b5cf6', // Purple
     'Expense': '#64748b', // Slate
     'Debt': '#dc2626', // Red-dark
+    'Residual': '#10b981', // Emerald - unallocated cash
     // 401k family - shades of blue/indigo/purple
     '401k-PreTax': '#3b82f6', // Blue
     '401k-Roth': '#6366f1', // Indigo
@@ -66,6 +67,7 @@ export const SankeyDiagram: React.FC<{ data: CashFlow; currencySymbol?: string }
         const nFixed = addNode("Needs", "Expense");
         const nVar = addNode("Wants", "Expense");
         const nDebt = addNode("Debt", "Debt");
+        const nResidual = addNode("Residual Cash", "Residual");
 
         const nEmployer = addNode("Employer", "Income");
         const nMatch = addNode("Match", "Savings");
@@ -98,7 +100,8 @@ export const SankeyDiagram: React.FC<{ data: CashFlow; currencySymbol?: string }
         addLink(nNet, nFixed, data.fixedExpenses);
         addLink(nNet, nVar, data.variableExpenses);
         addLink(nNet, nDebt, data.debtPayments);
-        addLink(nNet, nBrokerage, data.brokerageContribution + data.residualCash);
+        addLink(nNet, nBrokerage, data.brokerageContribution);
+        addLink(nNet, nResidual, data.residualCash);
 
         // Employer Match
         if (data.employerMatch > 0) {

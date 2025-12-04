@@ -7,7 +7,7 @@ import { FormattedInput } from '@/components/ui/formatted-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Toggle } from '@/components/ui/toggle';
 import { calculateCashFlow } from '@/lib/engine';
-import { TrendingUp, Wallet } from 'lucide-react';
+import { TrendingUp, Wallet, PiggyBank } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountType, TaxTreatment } from '@/types/flame';
 
@@ -21,7 +21,7 @@ export const SavingsSection = () => {
     const cashFlow = calculateCashFlow(state);
 
     // Helper to sync balance to Accounts list
-    const syncAccount = (id: string, name: string, type: AccountType, taxTreatment: TaxTreatment, balance: number) => {
+    const syncAccount = (id: string, name: string, type: AccountType, taxTreatment: TaxTreatment, balance: number, expectedReturn?: number) => {
         const existingAccount = accounts.find(a => a.id === id);
         
         let newAccounts = accounts;
@@ -30,7 +30,7 @@ export const SavingsSection = () => {
         } else if (balance > 0) {
             newAccounts = [
                 ...accounts,
-                { id, name, type, balance, taxTreatment }
+                { id, name, type, balance, taxTreatment, expectedReturn }
             ];
         }
 
@@ -43,9 +43,9 @@ export const SavingsSection = () => {
     const update = (field: keyof typeof savings, value: any) => {
         updateSection('savings', { [field]: value });
         
-        // Sync balance to accounts
+        // Sync balance to accounts (Brokerage uses market return ~7% by default)
         if (field === 'brokerageBalance') {
-            syncAccount('sys-brokerage', 'Taxable Brokerage', 'Brokerage', 'Taxable', value);
+            syncAccount('sys-brokerage', 'Taxable Brokerage', 'Brokerage', 'Taxable', value, state.assumptions.marketReturn);
         }
     };
 
@@ -58,7 +58,9 @@ export const SavingsSection = () => {
         <div className="space-y-6">
             <SectionHeader 
                 title="Taxable Savings" 
-                description="Configure contributions to taxable brokerage accounts." 
+                description="Configure contributions to taxable brokerage accounts."
+                icon={PiggyBank}
+                accentColor="emerald"
             />
             
             <div className="grid gap-4 md:grid-cols-2">

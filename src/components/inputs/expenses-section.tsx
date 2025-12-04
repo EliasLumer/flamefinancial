@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { FormattedInput } from '@/components/ui/formatted-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Info, X } from 'lucide-react';
+import { Plus, Trash2, Info, X, Receipt } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 
 export const ExpensesSection = () => {
@@ -84,7 +84,7 @@ export const ExpensesSection = () => {
 
     return (
         <div className="space-y-6">
-            <SectionHeader title="Expenses" description="Monthly spending breakdown." />
+            <SectionHeader title="Expenses" description="Monthly spending breakdown." icon={Receipt} accentColor="rose" />
 
             <Card>
                 <CardHeader>

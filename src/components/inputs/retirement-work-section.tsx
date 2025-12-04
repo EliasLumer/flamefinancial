@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormattedInput } from '@/components/ui/formatted-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Toggle } from '@/components/ui/toggle';
-import { Rocket, TrendingUp, ChevronRight, CheckCircle2, AlertCircle, RefreshCw, ArrowDown } from 'lucide-react';
+import { Rocket, TrendingUp, ChevronRight, CheckCircle2, AlertCircle, RefreshCw, ArrowDown, Briefcase } from 'lucide-react';
 import { AccountType, TaxTreatment } from '@/types/flame';
 
 export const RetirementWorkSection = () => {
@@ -107,7 +107,7 @@ export const RetirementWorkSection = () => {
 
     return (
         <div className="space-y-6">
-            <SectionHeader title="Work Retirement (401k)" description="Configure your employer-sponsored plan contributions." />
+            <SectionHeader title="Work Retirement (401k)" description="Configure your employer-sponsored plan contributions." icon={Briefcase} accentColor="blue" />
             
             <div className="grid gap-4 md:grid-cols-2">
                 {/* Employee Contributions Card */}

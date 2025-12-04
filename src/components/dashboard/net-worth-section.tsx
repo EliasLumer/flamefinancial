@@ -132,11 +132,16 @@ export const NetWorthSection: React.FC = () => {
 
     return (
         <Card className="border-zinc-800 bg-zinc-900/50">
-            <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                    <PiggyBank className="h-5 w-5 text-orange-500" />
-                    Net Worth Overview
-                </CardTitle>
+            <CardHeader className="pb-4 border-b border-zinc-800/50">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-emerald-500/10">
+                        <PiggyBank className="h-5 w-5 text-emerald-500" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-lg">Net Worth Overview</CardTitle>
+                        <p className="text-xs text-zinc-500 mt-0.5">Your assets, liabilities, and allocation</p>
+                    </div>
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Total Net Worth */}

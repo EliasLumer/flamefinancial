@@ -134,14 +134,19 @@ export const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ readiness, c
 
     return (
         <Card className="border-zinc-800 bg-zinc-900/50">
-            <CardHeader className="pb-4">
+            <CardHeader className="pb-4 border-b border-zinc-800/50">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                        <Map className="h-5 w-5 text-orange-500" />
-                        Financial Roadmap
-                    </CardTitle>
-                    <span className="text-sm text-zinc-400">
-                        {completedCount}/{STEPS.length} Complete
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500/10">
+                            <Map className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg">Financial Roadmap</CardTitle>
+                            <p className="text-xs text-zinc-500 mt-0.5">Your journey to financial independence</p>
+                        </div>
+                    </div>
+                    <span className="text-sm text-zinc-400 bg-zinc-800/50 px-2 py-1 rounded">
+                        {completedCount}/{STEPS.length}
                     </span>
                 </div>
             </CardHeader>

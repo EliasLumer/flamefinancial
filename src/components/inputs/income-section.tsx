@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { FormattedInput } from '@/components/ui/formatted-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, DollarSign } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 
 export const IncomeSection = () => {
@@ -71,7 +71,7 @@ export const IncomeSection = () => {
 
     return (
         <div className="space-y-6">
-            <SectionHeader title="Income & Taxes" description="Define your primary earning sources and tax situation." />
+            <SectionHeader title="Income & Taxes" description="Define your primary earning sources and tax situation." icon={DollarSign} accentColor="green" />
             
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>

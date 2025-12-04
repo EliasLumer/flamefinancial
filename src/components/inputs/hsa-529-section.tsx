@@ -8,7 +8,7 @@ import { FormattedInput } from '@/components/ui/formatted-input';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Toggle } from '@/components/ui/toggle';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Info } from 'lucide-react';
+import { Plus, Trash2, Info, HeartPulse } from 'lucide-react';
 import { AccountType, TaxTreatment } from '@/types/flame';
 
 export const Hsa529Section = () => {
@@ -91,7 +91,7 @@ export const Hsa529Section = () => {
 
     return (
         <div className="space-y-6">
-            <SectionHeader title="HSA & Education" description="Health Savings Accounts and 529 plans." />
+            <SectionHeader title="HSA & Education" description="Health Savings Accounts and 529 plans." icon={HeartPulse} accentColor="cyan" />
             
             {/* HSA Section */}
             <Card>

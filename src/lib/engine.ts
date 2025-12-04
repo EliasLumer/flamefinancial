@@ -208,6 +208,16 @@ export interface ProjectionPoint {
   isFire: boolean;
 }
 
+// Helper to get default expected return based on account type
+const getDefaultReturn = (type: string, marketReturn: number): number => {
+  switch(type) {
+    case 'Cash': return 0;           // Checking accounts earn nothing
+    case 'Cash (HYSA)': return 3;    // High-yield savings ~3%
+    case 'Brokerage': return marketReturn; // Stocks use market return
+    default: return marketReturn;
+  }
+};
+
 export const calculateProjections = (state: AppState): ProjectionPoint[] => {
   const { fire, assumptions, accounts } = state;
   const startYear = new Date().getFullYear();
@@ -232,10 +242,27 @@ export const calculateProjections = (state: AppState): ProjectionPoint[] => {
     .filter(a => a.type === 'HSA')
     .reduce((sum, a) => sum + a.balance, 0);
   
-  // Taxable: Brokerage + Cash + Cash (HYSA)
-  let taxableBalance = accounts
-    .filter(a => ['Brokerage', 'Cash', 'Cash (HYSA)'].includes(a.type))
-    .reduce((sum, a) => sum + a.balance, 0);
+  // Taxable accounts: Track EACH account separately with its own expected return
+  // This allows different returns for HYSA (3%), Cash (0%), Brokerage stocks (7-10%), etc.
+  const taxableAccounts = accounts.filter(a => ['Brokerage', 'Cash', 'Cash (HYSA)'].includes(a.type));
+  const taxableBalances = new Map<string, { balance: number; expectedReturn: number; type: string }>();
+  
+  taxableAccounts.forEach(a => {
+    taxableBalances.set(a.id, {
+      balance: a.balance,
+      expectedReturn: a.expectedReturn ?? getDefaultReturn(a.type, assumptions.marketReturn),
+      type: a.type
+    });
+  });
+  
+  // Helper to get total taxable balance
+  const getTotalTaxable = () => {
+    let total = 0;
+    taxableBalances.forEach(v => total += v.balance);
+    return total;
+  };
+  
+  let taxableBalance = getTotalTaxable();
     
   // Other assets (real estate, etc.)
   let otherAssets = accounts
@@ -314,7 +341,34 @@ export const calculateProjections = (state: AppState): ProjectionPoint[] => {
         // Taxable: Brokerage contributions + residual cash
         // Note: postTax401k (after-tax not converted) would ideally be tracked separately
         // but for simplicity, we add it to taxable since earnings are taxable
-        taxableBalance += cf.brokerageContribution + cf.residualCash + cf.postTax401k;
+        const taxableContribution = cf.brokerageContribution + cf.residualCash + cf.postTax401k;
+        
+        // Add contributions to the primary brokerage account (or create one if none exists)
+        // Contributions are assumed to go into the highest-return taxable account (stocks)
+        const primaryBrokerage = Array.from(taxableBalances.entries())
+          .filter(([, v]) => v.type === 'Brokerage')
+          .sort((a, b) => b[1].expectedReturn - a[1].expectedReturn)[0];
+        
+        if (primaryBrokerage) {
+          taxableBalances.set(primaryBrokerage[0], {
+            ...primaryBrokerage[1],
+            balance: primaryBrokerage[1].balance + taxableContribution
+          });
+        } else if (taxableBalances.size > 0) {
+          // If no brokerage, add to the first taxable account
+          const firstAccount = Array.from(taxableBalances.entries())[0];
+          taxableBalances.set(firstAccount[0], {
+            ...firstAccount[1],
+            balance: firstAccount[1].balance + taxableContribution
+          });
+        } else {
+          // Create a virtual brokerage account for contributions
+          taxableBalances.set('virtual-brokerage', {
+            balance: taxableContribution,
+            expectedReturn: assumptions.marketReturn,
+            type: 'Brokerage'
+          });
+        }
     } else {
         // Retirement withdrawals with tax-aware logic
         const annualExpenses = cf.fixedExpenses + cf.variableExpenses; 
@@ -327,11 +381,19 @@ export const calculateProjections = (state: AppState): ProjectionPoint[] => {
         // Withdrawal order: Taxable -> Pre-tax (with gross-up for taxes) -> Roth -> HSA
         
         // 1. Draw from taxable first (capital gains tax simplified as tax-free for now)
-        if (withdrawNeeded > 0 && taxableBalance > 0) {
-            const taxableWithdraw = Math.min(withdrawNeeded, taxableBalance);
-            taxableBalance -= taxableWithdraw;
-            withdrawNeeded -= taxableWithdraw;
+        // Withdraw from accounts in order: Cash first (0% return), then HYSA, then Brokerage
+        const sortedTaxable = Array.from(taxableBalances.entries())
+          .sort((a, b) => a[1].expectedReturn - b[1].expectedReturn); // Lowest return first
+        
+        for (const [id, account] of sortedTaxable) {
+            if (withdrawNeeded <= 0) break;
+            if (account.balance <= 0) continue;
+            
+            const withdrawAmount = Math.min(withdrawNeeded, account.balance);
+            taxableBalances.set(id, { ...account, balance: account.balance - withdrawAmount });
+            withdrawNeeded -= withdrawAmount;
         }
+        taxableBalance = getTotalTaxable();
         
         // 2. Draw from pre-tax (must gross-up for income taxes)
         if (withdrawNeeded > 0 && preTaxBalance > 0) {
@@ -362,15 +424,29 @@ export const calculateProjections = (state: AppState): ProjectionPoint[] => {
     // 4. Apply growth to all accounts
     const returnRate = assumptions.marketReturn / 100;
     const taxDrag = assumptions.taxDrag / 100;
-    const taxableReturn = returnRate * (1 - taxDrag);
     
     // Tax-advantaged accounts grow at full market return
     preTaxBalance *= (1 + returnRate);
     rothBalance *= (1 + returnRate);
     hsaBalance *= (1 + returnRate);
     
-    // Taxable accounts have tax drag on growth
-    taxableBalance *= (1 + taxableReturn);
+    // Taxable accounts: Apply per-account returns with tax drag
+    // Each account grows at its own rate (e.g., HYSA at 3%, stocks at 7%)
+    // Tax drag only applies to investment accounts, not cash/HYSA (interest is taxed differently)
+    taxableBalances.forEach((account, id) => {
+      const accountReturn = account.expectedReturn / 100;
+      // Apply tax drag only to investment accounts (Brokerage), not to cash/savings
+      const effectiveDrag = account.type === 'Brokerage' ? taxDrag : 0;
+      const effectiveReturn = accountReturn * (1 - effectiveDrag);
+      
+      taxableBalances.set(id, {
+        ...account,
+        balance: account.balance * (1 + effectiveReturn)
+      });
+    });
+    
+    // Update total taxable balance
+    taxableBalance = getTotalTaxable();
     
     // Other assets grow at inflation rate
     otherAssets *= (1 + assumptions.inflation / 100);

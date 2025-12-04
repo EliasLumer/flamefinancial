@@ -29,7 +29,10 @@ export interface Account {
   balance: number;
   taxTreatment: TaxTreatment;
   // For retirement accounts that need granular tracking
-  buckets?: RetirementBuckets; 
+  buckets?: RetirementBuckets;
+  // Expected annual return for taxable accounts (%, e.g. 3 for HYSA, 7 for stocks)
+  // Only used for Brokerage/Cash/HYSA - retirement accounts use global marketReturn
+  expectedReturn?: number;
 }
 
 export interface Liability {

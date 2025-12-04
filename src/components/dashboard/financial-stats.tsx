@@ -135,12 +135,17 @@ export const FinancialStats: React.FC = () => {
 
     return (
         <Card className="border-zinc-800 bg-zinc-900/30">
-            <CardHeader className="pb-4">
+            <CardHeader className="pb-4 border-b border-zinc-800/50">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-orange-500" />
-                        Financial Snapshot
-                    </CardTitle>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-orange-500/10">
+                            <TrendingUp className="h-5 w-5 text-orange-500" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg">Financial Snapshot</CardTitle>
+                            <p className="text-xs text-zinc-500 mt-0.5">Your income, savings, and expenses at a glance</p>
+                        </div>
+                    </div>
                     <div className="flex items-center gap-2 bg-zinc-950/50 px-3 py-1.5 rounded-lg border border-zinc-800">
                         <span className={cn(
                             "text-xs font-medium transition-colors",

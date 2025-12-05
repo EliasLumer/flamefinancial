@@ -202,6 +202,18 @@ export const SankeyDiagram: React.FC<{ data: CashFlow; currencySymbol?: string }
             value: l.value
         }));
 
+        // Guard: Don't render if no data
+        if (activeLinks.length === 0 || activeNodes.length === 0) {
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height / 2)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#64748b")
+                .attr("font-size", "14px")
+                .text("Add income data to see your cash flow");
+            return;
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sankeyGenerator = d3Sankey<any, any>()
             .nodeWidth(15)

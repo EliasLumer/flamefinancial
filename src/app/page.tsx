@@ -1,9 +1,8 @@
-'use client';
+    'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useFlameStore } from '@/lib/store';
-import { calculateCashFlow, calculateFireNumbers, calculateProjections } from '@/lib/engine';
+import { calculateCashFlow } from '@/lib/engine';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -85,6 +84,18 @@ const MiniSankey: React.FC<{ data: ReturnType<typeof calculateCashFlow> }> = ({ 
             { source: 0, target: 2, value: totalSavings },
             { source: 0, target: 3, value: totalExpenses },
         ].filter(l => l.value > 0);
+
+        // Guard: Don't render if no data
+        if (links.length === 0) {
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height / 2)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#64748b")
+                .attr("font-size", "14px")
+                .text("Add income to see your money flow");
+            return;
+        }
 
         const NODE_COLORS: Record<string, string> = {
             'Income': '#22c55e',
@@ -253,64 +264,66 @@ const StrategyComparisonChart: React.FC<{
     );
 };
 
+// Sample demo data for the homepage showcase - clean round numbers
+const DEMO_CASH_FLOW: ReturnType<typeof calculateCashFlow> = {
+    grossIncome: 100000,
+    salary: 100000,
+    bonus: 0,
+    additionalIncome: 0,
+    taxableIncome: 80000,
+    taxes: 20000,
+    preTax401k: 20000,
+    hsaContribution: 0,
+    traditionalIra: 0,
+    netAfterTax: 60000,
+    roth401k: 0,
+    rothIra: 7000,
+    education529: 0,
+    spilloverAfterTax: 0,
+    additionalAfterTax: 0,
+    totalAfterTax: 0,
+    postTax401k: 0,
+    megaBackdoorRoth: 0,
+    brokerageContribution: 5000,
+    employerMatch: 5000,
+    housing: 18000,
+    needsOther: 6000,
+    wants: 12000,
+    fixedExpenses: 24000,
+    variableExpenses: 12000,
+    debtPayments: 0,
+    residualCash: 12000,
+};
+
 export default function HomePage() {
-    const { state } = useFlameStore();
-    const { retirementWork, retirementPersonal, income, fire, settings } = state;
-    const currencySymbol = settings?.currencySymbol || '$';
+    const currencySymbol = '$';
 
     // Strategy selector state
     const [selectedStrategy, setSelectedStrategy] = useState<FireStrategy>('regular');
     const [demoSavingsRate, setDemoSavingsRate] = useState(30);
     const [demoIncome, setDemoIncome] = useState(100000);
 
-    // Calculate real user's FIRE stats
-    const fireNumbers = useMemo(() => calculateFireNumbers(state), [state]);
-    const cashFlow = useMemo(() => calculateCashFlow(state), [state]);
-    const projections = useMemo(() => calculateProjections(state), [state]);
+    // Use demo data for the homepage showcase
+    const demoCashFlow = DEMO_CASH_FLOW;
     
-    // Calculate user's savings rate
-    const totalSavings = cashFlow.preTax401k + cashFlow.roth401k + cashFlow.rothIra + 
-                         cashFlow.brokerageContribution + cashFlow.hsaContribution + cashFlow.megaBackdoorRoth;
-    const savingsRate = cashFlow.grossIncome > 0 ? (totalSavings / cashFlow.grossIncome) * 100 : 0;
-
-    // Find user's projected FIRE age
-    const userFireAge = projections.find(p => p.investableAssets >= fireNumbers.fireNumber)?.age || null;
-
-    // Next Action Heuristic (simplified)
-    const nextAction = useMemo(() => {
-        const current401kRate = retirementWork.preTax401kRate + retirementWork.roth401kRate;
-        const matchLimit = retirementWork.employerMatch.matchLimit;
-        const matchRatio = retirementWork.employerMatch.matchRatio;
-        
-        if (matchRatio > 0 && current401kRate < matchLimit) {
-            return {
-                title: "Capture Employer Match",
-                description: `Contributing ${current401kRate}% → Match up to ${matchLimit}%`,
-                link: '/inputs',
-                label: 'Adjust 401k'
-            };
-        }
-
-        const rothIraLimit = 7000;
-        if (retirementPersonal.rothIraContribution < rothIraLimit) {
-            return {
-                title: "Max Roth IRA",
-                description: `${currencySymbol}${retirementPersonal.rothIraContribution.toLocaleString()} of ${currencySymbol}${rothIraLimit.toLocaleString()}`,
-                link: '/inputs',
-                label: 'Update IRA'
-            };
-        }
-        
-        return {
-            title: "Explore Advanced Strategies",
-            description: "Mega-backdoor Roth, Tax-loss harvesting",
-            link: '/learn',
-            label: 'Learn More'
-        };
-    }, [retirementWork, retirementPersonal, currencySymbol]);
+    // Demo stats for the hero section
+    const demoFireNumber = 1000000; // $1M FIRE number (based on $40k spending @ 4% SWR)
+    const demoFireAge = 45;
+    const demoTotalSavings = demoCashFlow.preTax401k + demoCashFlow.rothIra + 
+                            demoCashFlow.brokerageContribution + demoCashFlow.hsaContribution + 
+                            demoCashFlow.employerMatch;
+    const demoSavingsRateDisplay = Math.round((demoTotalSavings / demoCashFlow.grossIncome) * 100);
 
     const strategyConfig = STRATEGY_CONFIG[selectedStrategy];
-    const demoFireNumber = strategyConfig.spending / (strategyConfig.swr / 100);
+    const strategyFireNumber = strategyConfig.spending / (strategyConfig.swr / 100);
+
+    // Demo "next action" for the showcase
+    const nextAction = {
+        title: "Capture Employer Match",
+        description: "Don't leave free money on the table!",
+        link: '/inputs',
+        label: 'Get Started'
+    };
 
     return (
         <div className="space-y-10 pb-20">
@@ -349,30 +362,30 @@ export default function HomePage() {
                         </div>
                     </div>
                     
-                    {/* Quick Stats */}
+                    {/* Quick Stats - Demo Data */}
                     <div className="flex-shrink-0 grid grid-cols-2 gap-4 w-full lg:w-auto">
                         <div className="bg-zinc-800/50 backdrop-blur rounded-xl p-4 border border-zinc-700/50 text-center">
-                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Your FIRE Number</p>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Sample FIRE Number</p>
                             <p className="text-2xl md:text-3xl font-bold text-orange-500">
-                                {currencySymbol}{(fireNumbers.fireNumber / 1000000).toFixed(1)}M
+                                {currencySymbol}{(demoFireNumber / 1000000).toFixed(1)}M
                             </p>
                         </div>
                         <div className="bg-zinc-800/50 backdrop-blur rounded-xl p-4 border border-zinc-700/50 text-center">
                             <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Projected FIRE Age</p>
                             <p className="text-2xl md:text-3xl font-bold text-green-500">
-                                {userFireAge ? userFireAge : '—'}
+                                {demoFireAge}
                             </p>
                         </div>
                         <div className="bg-zinc-800/50 backdrop-blur rounded-xl p-4 border border-zinc-700/50 text-center">
                             <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Savings Rate</p>
                             <p className="text-2xl md:text-3xl font-bold text-purple-500">
-                                {savingsRate.toFixed(0)}%
+                                {demoSavingsRateDisplay}%
                             </p>
                         </div>
                         <div className="bg-zinc-800/50 backdrop-blur rounded-xl p-4 border border-zinc-700/50 text-center">
                             <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Annual Savings</p>
                             <p className="text-2xl md:text-3xl font-bold text-blue-500">
-                                {currencySymbol}{Math.round(totalSavings / 1000)}k
+                                {currencySymbol}{Math.round(demoTotalSavings / 1000)}k
                             </p>
                         </div>
                     </div>
@@ -402,19 +415,19 @@ export default function HomePage() {
                         </div>
                     </CardHeader>
                     <CardContent className="pt-2">
-                        <MiniSankey data={cashFlow} />
+                        <MiniSankey data={demoCashFlow} />
                         <div className="grid grid-cols-3 gap-2 mt-4 text-center">
                             <div className="bg-zinc-800/50 rounded-lg p-2">
                                 <p className="text-xs text-zinc-500">Income</p>
-                                <p className="text-sm font-semibold text-green-400">{currencySymbol}{Math.round(cashFlow.grossIncome / 1000)}k</p>
+                                <p className="text-sm font-semibold text-green-400">{currencySymbol}{Math.round(demoCashFlow.grossIncome / 1000)}k</p>
                             </div>
                             <div className="bg-zinc-800/50 rounded-lg p-2">
                                 <p className="text-xs text-zinc-500">Savings</p>
-                                <p className="text-sm font-semibold text-purple-400">{currencySymbol}{Math.round(totalSavings / 1000)}k</p>
+                                <p className="text-sm font-semibold text-purple-400">{currencySymbol}{Math.round(demoTotalSavings / 1000)}k</p>
                             </div>
                             <div className="bg-zinc-800/50 rounded-lg p-2">
                                 <p className="text-xs text-zinc-500">Expenses</p>
-                                <p className="text-sm font-semibold text-slate-400">{currencySymbol}{Math.round((cashFlow.fixedExpenses + cashFlow.variableExpenses) / 1000)}k</p>
+                                <p className="text-sm font-semibold text-slate-400">{currencySymbol}{Math.round((demoCashFlow.fixedExpenses + demoCashFlow.variableExpenses) / 1000)}k</p>
                             </div>
                         </div>
                     </CardContent>
@@ -514,7 +527,7 @@ export default function HomePage() {
                             <div className="text-right">
                                 <p className="text-xs text-zinc-500">FIRE Number</p>
                                 <p className="text-sm font-semibold text-white">
-                                    {currencySymbol}{(demoFireNumber / 1000000).toFixed(2)}M
+                                    {currencySymbol}{(strategyFireNumber / 1000000).toFixed(2)}M
                                 </p>
                             </div>
                         </div>

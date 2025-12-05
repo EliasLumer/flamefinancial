@@ -211,7 +211,7 @@ const StrategyComparisonChart: React.FC<{
                     <YAxis 
                         stroke="#64748b"
                         fontSize={10}
-                        tickFormatter={formatCurrency}
+                        tickFormatter={(value: number) => formatCurrency(value)}
                         tickLine={false}
                         axisLine={false}
                         width={50}

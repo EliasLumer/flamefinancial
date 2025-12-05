@@ -69,8 +69,9 @@ export const SankeyDiagram: React.FC<{ data: CashFlow; currencySymbol?: string }
         const nDebt = addNode("Debt", "Debt");
         const nResidual = addNode("Residual Cash", "Residual");
 
+        // Employer as income source, match flows to 401k
         const nEmployer = addNode("Employer", "Income");
-        const nMatch = addNode("Match", "Savings");
+        const nPreTax401kMatch = addNode("Pre-tax 401k (Match)", "401k-PreTax");
 
         // Helper to add link only if value > 0
         const addLink = (source: number, target: number, value: number) => {
@@ -79,10 +80,14 @@ export const SankeyDiagram: React.FC<{ data: CashFlow; currencySymbol?: string }
             }
         };
 
-        // Sources -> Gross
+        // Sources -> Gross (your income)
         addLink(nSalary, nGross, data.salary);
         addLink(nBonus, nGross, data.bonus);
         addLink(nOther, nGross, data.additionalIncome);
+        
+        // Employer Match: Employer -> Pre-tax 401k (Match)
+        // Shows as free money from employer going directly into your 401k
+        addLink(nEmployer, nPreTax401kMatch, data.employerMatch);
 
         // Gross -> Splits
         addLink(nGross, nPreTax401k, data.preTax401k);
@@ -102,11 +107,6 @@ export const SankeyDiagram: React.FC<{ data: CashFlow; currencySymbol?: string }
         addLink(nNet, nDebt, data.debtPayments);
         addLink(nNet, nBrokerage, data.brokerageContribution);
         addLink(nNet, nResidual, data.residualCash);
-
-        // Employer Match
-        if (data.employerMatch > 0) {
-            addLink(nEmployer, nMatch, data.employerMatch);
-        }
 
         return { nodes: nodesList, links: linksList };
     }, [data]);

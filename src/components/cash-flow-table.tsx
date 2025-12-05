@@ -55,9 +55,9 @@ const Row = ({ label, value, gross, type = 'deduction', color, currencySymbol = 
     
     return (
         <div className={cn(
-            "flex items-center justify-between py-1 px-2 rounded text-xs",
+            "flex items-center justify-between py-1.5 px-3 rounded text-xs",
             getBgClass(),
-            type === 'result' && 'py-1.5'
+            type === 'result' && 'py-2'
         )}>
             <div className="flex items-center gap-1.5 min-w-0">
                 {type === 'deduction' && <span className="text-zinc-600 text-[10px]">−</span>}
@@ -101,10 +101,10 @@ export const CashFlowTable: React.FC<CashFlowTableProps> = ({ data, currencySymb
     const displayNetBonus = isMonthly ? netBonus / 12 : netBonus;
     
     return (
-        <div className="w-full overflow-x-auto">
-            <div className="min-w-[400px] space-y-0.5">
+        <div className="w-full overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-900/30">
+            <div className="min-w-[400px] p-3 space-y-0.5">
                 {/* Header */}
-                <div className="flex items-center justify-between py-1.5 px-2 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-700 mb-1">
+                <div className="flex items-center justify-between py-2 px-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-700/50 mb-2 bg-zinc-800/30 rounded-t -mx-3 -mt-3 px-3">
                     <div>Category</div>
                     <div className="flex items-center gap-3">
                         <span className="w-12 hidden sm:block"></span>
@@ -118,6 +118,7 @@ export const CashFlowTable: React.FC<CashFlowTableProps> = ({ data, currencySymb
                 
                 {/* Pre-tax Deductions */}
                 {data.preTax401k > 0 && <Row label="Pre-tax 401k" value={data.preTax401k} gross={gross} color="text-blue-400" index={deductionIndex++} currencySymbol={currencySymbol} isMonthly={isMonthly} />}
+                {data.employerMatch > 0 && <Row label="401k (Employer Match)" value={data.employerMatch} gross={gross} color="text-blue-400" index={deductionIndex++} currencySymbol={currencySymbol} isMonthly={isMonthly} />}
                 {data.hsaContribution > 0 && <Row label="HSA" value={data.hsaContribution} gross={gross} color="text-blue-400" index={deductionIndex++} currencySymbol={currencySymbol} isMonthly={isMonthly} />}
                 {data.traditionalIra > 0 && <Row label="Traditional IRA" value={data.traditionalIra} gross={gross} color="text-blue-400" index={deductionIndex++} currencySymbol={currencySymbol} isMonthly={isMonthly} />}
                 <Row label="Taxes" value={data.taxes} gross={gross} color="text-red-400" index={deductionIndex++} currencySymbol={currencySymbol} isMonthly={isMonthly} />
@@ -146,16 +147,11 @@ export const CashFlowTable: React.FC<CashFlowTableProps> = ({ data, currencySymb
                 {/* Residual */}
                 <Row label="Residual Cash" value={data.residualCash} gross={gross} type="result" currencySymbol={currencySymbol} isMonthly={isMonthly} />
                 
-                {/* Employer Match - Info Row */}
-                {data.employerMatch > 0 && (
-                    <Row label="Employer Match (Not in Net)" value={data.employerMatch} gross={gross} type="info" color="text-blue-400" currencySymbol={currencySymbol} isMonthly={isMonthly} />
-                )}
-                
                 {/* Excluded Bonus Info */}
                 {excludedBonus && excludedBonus > 0 && (
-                    <div className="flex items-center justify-between py-1.5 px-2 rounded bg-amber-500/10 border border-amber-500/20 mt-2">
-                        <div className="flex items-center gap-1.5">
-                            <Gift className="h-3 w-3 text-amber-400" />
+                    <div className="flex items-center justify-between py-2 px-3 rounded bg-amber-500/10 border border-amber-500/20 mt-3">
+                        <div className="flex items-center gap-2">
+                            <Gift className="h-3.5 w-3.5 text-amber-400" />
                             <span className="text-xs text-amber-400">{isMonthly ? 'Monthly' : 'Annual'} Bonus (excluded)</span>
                         </div>
                         <div className="flex items-center gap-3">

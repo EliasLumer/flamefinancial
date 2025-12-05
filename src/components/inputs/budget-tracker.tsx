@@ -49,6 +49,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({ position = 'floati
         const baseGrossMonthly = includeBonus ? cf.grossIncome / 12 : grossAnnualWithoutBonus / 12;
         const baseTaxesMonthly = includeBonus ? cf.taxes / 12 : taxesAnnualWithoutBonus / 12;
         const basePreTax401kMonthly = cf.preTax401k / 12;
+        const baseEmployerMatchMonthly = cf.employerMatch / 12;
         const baseHsaMonthly = cf.hsaContribution / 12;
         const baseTraditionalIraMonthly = cf.traditionalIra / 12;
         const baseNetMonthly = includeBonus ? cf.netAfterTax / 12 : netAnnualWithoutBonus / 12;
@@ -71,6 +72,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({ position = 'floati
         const grossDisplay = baseGrossMonthly * multiplier;
         const taxesDisplay = baseTaxesMonthly * multiplier;
         const preTax401kDisplay = basePreTax401kMonthly * multiplier;
+        const employerMatchDisplay = baseEmployerMatchMonthly * multiplier;
         const hsaDisplay = baseHsaMonthly * multiplier;
         const traditionalIraDisplay = baseTraditionalIraMonthly * multiplier;
         const netDisplay = baseNetMonthly * multiplier;
@@ -106,6 +108,9 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({ position = 'floati
         }
         if (preTax401kDisplay > 0) {
             lines.push({ label: 'Pre-tax 401k', amount: -preTax401kDisplay, percentage: pct(preTax401kDisplay), type: 'deduction', color: 'text-blue-400' });
+        }
+        if (employerMatchDisplay > 0) {
+            lines.push({ label: '401k (Employer Match)', amount: employerMatchDisplay, percentage: pct(employerMatchDisplay), type: 'deduction', color: 'text-blue-400' });
         }
         if (hsaDisplay > 0) {
             lines.push({ label: 'HSA', amount: -hsaDisplay, percentage: pct(hsaDisplay), type: 'deduction', color: 'text-blue-400' });
